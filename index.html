@@ -765,23 +765,38 @@ function assignRowColors() {
 // ===== חשובים =====
 var _importantNotes = [];
 
-function loadImportant() {
-  var saved = localStorage.getItem('important_notes');
-  _importantNotes = saved ? JSON.parse(saved) : [];
+async function loadImportant() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?type=important');
+    const rows = await res.json();
+    _importantNotes = rows.map(function(r) {
+      return { id: r[0], project: r[1] || '', text: r[2] || '', dateAdded: r[3] || '', dateUntil: r[4] || '' };
+    });
+  } catch(e) {
+    var saved = localStorage.getItem('important_notes');
+    _importantNotes = saved ? JSON.parse(saved) : [];
+  }
   renderImportant();
 }
 
-function saveImportant() {
-  localStorage.setItem('important_notes', JSON.stringify(_importantNotes));
+async function saveImportant() {
+  var rows = _importantNotes.map(function(n) {
+    return [n.id, n.project || '', n.text || '', n.dateAdded || '', n.dateUntil || ''];
+  });
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ type: 'important', rows: rows }) });
+  } catch(e) {
+    localStorage.setItem('important_notes', JSON.stringify(_importantNotes));
+  }
 }
 
-function addImportantNote(projectName) {
+async function addImportantNote(projectName) {
   var today = new Date();
   var d = today.getDate(), m = today.getMonth()+1, y = today.getFullYear();
   var dateStr = (d<10?'0'+d:d)+'/'+(m<10?'0'+m:m)+'/'+y;
   var proj = projectName !== undefined ? projectName : (document.getElementById('important-project-select') ? document.getElementById('important-project-select').value : '');
   _importantNotes.unshift({ id: Date.now(), project: proj, text: '', dateAdded: dateStr, dateUntil: '' });
-  saveImportant();
+  await saveImportant();
   renderImportant();
 }
 
@@ -795,16 +810,16 @@ function refreshImportantProjectSelect() {
   sel.innerHTML = html;
 }
 
-function deleteImportantNote(id) {
+async function deleteImportantNote(id) {
   if (!confirm('למחוק?')) return;
   _importantNotes = _importantNotes.filter(function(n){ return n.id !== id; });
-  saveImportant();
+  await saveImportant();
   renderImportant();
 }
 
 function updateImportantField(id, field, value) {
   var note = _importantNotes.find(function(n){ return n.id === id; });
-  if (note) { note[field] = value; saveImportant(); }
+  if (note) { note[field] = value; saveImportant(); } // fire-and-forget, no need to await
 }
 
 function renderImportant() {
@@ -1072,7 +1087,7 @@ function confirmAddToImportant() {
   checked.forEach(function(line) {
     _importantNotes.unshift({ id: Date.now() + Math.random(), project: __pendingImportantProject, text: line, dateAdded: dateStr, dateUntil: '' });
   });
-  saveImportant();
+  saveImportant(); // fire-and-forget
   showToast(checked.length + ' פריטים הועברו לחשובים ✓');
 }
 
