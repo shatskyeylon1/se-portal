@@ -620,9 +620,9 @@ async function showDashboard() {
   refreshSummaryTags();
   checkEmptyStates();
   makeSortable('table.clients-table:not(.tasks-table)', 'clients-body');
-  regroupTasks();
   if (localStorage.getItem('se_internal_dark') === '1') document.body.classList.add('dark-mode');
   if (localStorage.getItem('se_hide_done') !== '0') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
+  regroupTasks();
 
   document.getElementById('clients-body').addEventListener('input', updateStats);
   document.getElementById('clients-body').addEventListener('input', checkMoveInDates);
