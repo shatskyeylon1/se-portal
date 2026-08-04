@@ -608,7 +608,8 @@ async function showDashboard() {
   loader.id = 'app-loader';
   loader.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
   mainArea.appendChild(loader);
-  await Promise.all([loadClients(), loadTasks(), loadSummaries(), loadLeads(), loadImportant()]);
+  await loadClients();
+  await Promise.all([loadTasks(), loadSummaries(), loadLeads(), loadImportant()]);
   loader.remove();
   setupAutoSave();
   updateStats();
@@ -621,7 +622,7 @@ async function showDashboard() {
   makeSortable('table.clients-table:not(.tasks-table)', 'clients-body');
   regroupTasks();
   if (localStorage.getItem('se_internal_dark') === '1') document.body.classList.add('dark-mode');
-  if (localStorage.getItem('se_hide_done') === '1') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
+  if (localStorage.getItem('se_hide_done') !== '0') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
 
   document.getElementById('clients-body').addEventListener('input', updateStats);
   document.getElementById('clients-body').addEventListener('input', checkMoveInDates);
