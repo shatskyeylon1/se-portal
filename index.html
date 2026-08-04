@@ -1088,6 +1088,7 @@ function confirmAddToImportant() {
     _importantNotes.unshift({ id: Date.now() + Math.random(), project: __pendingImportantProject, text: line, dateAdded: dateStr, dateUntil: '' });
   });
   saveImportant(); // fire-and-forget
+  renderImportant();
   showToast(checked.length + ' פריטים הועברו לחשובים ✓');
 }
 
