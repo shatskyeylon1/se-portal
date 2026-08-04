@@ -623,6 +623,7 @@ async function showDashboard() {
   checkEmptyStates();
   makeSortable('table.clients-table:not(.tasks-table)', 'clients-body');
   regroupTasks();
+  if (_importantNotes.length === 0) setTimeout(loadImportant, 2000);
 
   document.getElementById('clients-body').addEventListener('input', updateStats);
   document.getElementById('clients-body').addEventListener('input', checkMoveInDates);
@@ -772,15 +773,24 @@ async function loadImportant() {
     }
     return s;
   }
-  try {
-    const res = await fetch(SCRIPT_URL + '?type=important');
-    const rows = await res.json();
-    _importantNotes = rows.map(function(r) {
-      return { id: r[0], project: r[1] || '', text: r[2] || '', dateAdded: fixDate(r[3]), dateUntil: fixDate(r[4]) };
-    });
-  } catch(e) {
-    var saved = localStorage.getItem('important_notes');
-    _importantNotes = saved ? JSON.parse(saved) : [];
+  var loaded = false;
+  for (var attempt = 0; attempt < 3 && !loaded; attempt++) {
+    try {
+      const res = await fetch(SCRIPT_URL + '?type=important');
+      const rows = await res.json();
+      if (!Array.isArray(rows)) throw new Error('bad response');
+      _importantNotes = rows.map(function(r) {
+        return { id: r[0], project: r[1] || '', text: r[2] || '', dateAdded: fixDate(r[3]), dateUntil: fixDate(r[4]) };
+      });
+      loaded = true;
+    } catch(e) {
+      if (attempt === 2) {
+        var saved = localStorage.getItem('important_notes');
+        _importantNotes = saved ? JSON.parse(saved) : [];
+      } else {
+        await new Promise(function(r){ setTimeout(r, 1500); });
+      }
+    }
   }
   renderImportant();
 }
