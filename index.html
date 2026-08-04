@@ -608,11 +608,7 @@ async function showDashboard() {
   loader.id = 'app-loader';
   loader.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
   mainArea.appendChild(loader);
-  await loadClients();
-  await loadTasks();
-  await loadSummaries();
-  await loadLeads();
-  loadImportant();
+  await Promise.all([loadClients(), loadTasks(), loadSummaries(), loadLeads(), loadImportant()]);
   loader.remove();
   setupAutoSave();
   updateStats();
@@ -766,11 +762,20 @@ function assignRowColors() {
 var _importantNotes = [];
 
 async function loadImportant() {
+  function fixDate(v) {
+    if (!v) return '';
+    var s = String(v);
+    if (s.match(/^\d{4}-\d{2}-\d{2}T/)) {
+      var d = new Date(s);
+      return (d.getDate()<10?'0'+d.getDate():d.getDate())+'/'+(d.getMonth()<9?'0'+(d.getMonth()+1):(d.getMonth()+1))+'/'+d.getFullYear();
+    }
+    return s;
+  }
   try {
     const res = await fetch(SCRIPT_URL + '?type=important');
     const rows = await res.json();
     _importantNotes = rows.map(function(r) {
-      return { id: r[0], project: r[1] || '', text: r[2] || '', dateAdded: r[3] || '', dateUntil: r[4] || '' };
+      return { id: r[0], project: r[1] || '', text: r[2] || '', dateAdded: fixDate(r[3]), dateUntil: fixDate(r[4]) };
     });
   } catch(e) {
     var saved = localStorage.getItem('important_notes');
