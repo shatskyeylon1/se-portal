@@ -608,6 +608,8 @@ async function showDashboard() {
   loader.id = 'app-loader';
   loader.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
   mainArea.appendChild(loader);
+  if (localStorage.getItem('se_internal_dark') === '1') document.body.classList.add('dark-mode');
+  if (localStorage.getItem('se_hide_done') !== '0') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
   await loadClients();
   await Promise.all([loadTasks(), loadSummaries(), loadLeads(), loadImportant()]);
   loader.remove();
@@ -620,8 +622,6 @@ async function showDashboard() {
   refreshSummaryTags();
   checkEmptyStates();
   makeSortable('table.clients-table:not(.tasks-table)', 'clients-body');
-  if (localStorage.getItem('se_internal_dark') === '1') document.body.classList.add('dark-mode');
-  if (localStorage.getItem('se_hide_done') !== '0') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
   regroupTasks();
 
   document.getElementById('clients-body').addEventListener('input', updateStats);
