@@ -873,7 +873,7 @@ function renderImportant() {
       if (idx === 0) {
         html += '<td rowspan="' + rows.length + '" style="width:36px;padding:2px 4px;vertical-align:middle;"><div style="background:' + color + ';border-radius:6px;height:100%;min-height:36px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-lr;transform:rotate(180deg);font-size:11px;font-weight:700;color:rgba(0,0,0,0.6);padding:8px 4px;white-space:nowrap;overflow:hidden;max-height:200px;">' + proj + '</div></td>';
       }
-      html += '<td style="' + tdStyle + 'text-align:right;"><textarea onchange="updateImportantField(' + n.id + ',\'text\',this.value)" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" rows="1" style="width:100%;border:none;background:transparent;font-size:14px;font-family:Assistant,sans-serif;resize:none;overflow:hidden;line-height:1.5;color:var(--ink);">' + (n.text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</textarea></td>';
+      html += '<td style="' + tdStyle + 'text-align:right;"><textarea data-nid="' + n.id + '" onchange="updateImportantField(' + n.id + ',\'text\',this.value)" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" rows="1" style="width:100%;border:none;background:transparent;font-size:14px;font-family:Assistant,sans-serif;resize:none;overflow:hidden;line-height:1.5;color:var(--ink);"></textarea></td>';
       html += '<td style="' + tdStyle + 'font-size:13px;color:var(--gray-500);white-space:nowrap;text-align:center;">' + (n.dateAdded||'') + '</td>';
       html += '<td style="' + tdStyle + 'text-align:center;"><input value="' + (n.dateUntil||'') + '" placeholder="DD/MM/YYYY" onchange="updateImportantField(' + n.id + ',\'dateUntil\',this.value)" style="border:1.5px solid var(--gray-300);border-radius:6px;padding:4px 8px;font-size:12px;font-family:Assistant,sans-serif;width:110px;background:transparent;"></td>';
       html += '<td style="' + tdStyle + 'text-align:center;"><button onclick="deleteImportantNote(' + n.id + ')" style="background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:14px;font-family:Assistant,sans-serif;">✕</button></td>';
@@ -888,10 +888,17 @@ function renderImportant() {
 
   html += '</tbody></table></div>';
   container.innerHTML = html;
-  container.querySelectorAll('textarea').forEach(function(ta) {
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
+  container.querySelectorAll('textarea[data-nid]').forEach(function(ta) {
+    var nid = parseFloat(ta.dataset.nid);
+    var note = _importantNotes.find(function(n){ return n.id === nid; });
+    if (note) ta.value = note.text || '';
   });
+  setTimeout(function() {
+    container.querySelectorAll('textarea[data-nid]').forEach(function(ta) {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    });
+  }, 30);
 }
 
 function showToast(msg) {
