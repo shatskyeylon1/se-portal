@@ -611,7 +611,8 @@ async function showDashboard() {
   if (localStorage.getItem('se_internal_dark') === '1') document.body.classList.add('dark-mode');
   if (localStorage.getItem('se_hide_done') !== '0') { document.body.classList.add('hide-done'); var btn = document.getElementById('toggle-done-btn'); if (btn) btn.textContent = 'הצג הושלם'; }
   await loadClients();
-  await Promise.all([loadTasks(), loadSummaries(), loadLeads(), loadImportant()]);
+  await Promise.all([loadTasks(), loadSummaries(), loadLeads()]);
+  await loadImportant();
   loader.remove();
   setupAutoSave();
   updateStats();
@@ -1346,15 +1347,6 @@ function regroupTasks() {
   const tbody = document.createElement('tbody');
   function appendGroup(groupRows, color, label) {
     const safeLabel = label.replace(/'/g, "\\'");
-    const completedDates = JSON.parse(localStorage.getItem('se_completed_dates') || '{}');
-    const now = Date.now();
-    const week = 7 * 24 * 60 * 60 * 1000;
-    // סנן משימות שהושלמו לפני יותר מ-7 ימים
-    groupRows = groupRows.filter(function(tr) {
-      const id = tr.dataset.id;
-      if (completedDates[id] && (now - completedDates[id]) > week) { tr.remove(); return false; }
-      return true;
-    });
     if (groupRows.length === 0) return;
     // סמן task-done ומיין הושלמו לתחתית
     groupRows.forEach(function(tr) {
