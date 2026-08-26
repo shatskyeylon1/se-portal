@@ -1647,7 +1647,7 @@ function addTaskRow(values) {
       '<option value="גבוה"' + (priority==='גבוה'?' selected':'') + '>גבוה</option>' +
       '<option value="נמוך"' + (priority==='נמוך'?' selected':'') + '>נמוך</option>' +
     '</select></td>' +
-    '<td class="col-status"><select class="status-pill ' + statusClass(v[3]) + '" onchange="this.className=\'status-pill \'+statusClass(this.value); if(this.value===\'הושלם\'){var d=JSON.parse(localStorage.getItem(\'se_completed_dates\')||\'[]\');if(typeof d!==\'object\'||Array.isArray(d))d={};d[this.closest(\'tr\').dataset.id]=Date.now();localStorage.setItem(\'se_completed_dates\',JSON.stringify(d));} regroupTasks();">' +
+    '<td class="col-status"><select class="status-pill ' + statusClass(v[3]) + '" onchange="this.className=\'status-pill \'+statusClass(this.value); regroupTasks(); saveTasks();">' +
       '<option' + (v[3]==='לביצוע'?' selected':'') + '>לביצוע</option>' +
       '<option' + (v[3]==='בעבודה'?' selected':'') + '>בעבודה</option>' +
       '<option' + (v[3]==='הושלם'?' selected':'') + '>הושלם</option>' +
