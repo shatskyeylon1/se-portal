@@ -1337,6 +1337,8 @@ function saveForm() {
   var formData = collectForm();
   fetch(SCRIPT_URL, {
     method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ type: 'questionnaire', password: currentPassword, formData: formData })
   }).then(function() {
     showSaveStatus();
